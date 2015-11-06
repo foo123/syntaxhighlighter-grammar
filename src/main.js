@@ -15,65 +15,60 @@
 var SyntaxHighlighterParser = Class(Parser, {
     constructor: function SyntaxHighlighterParser( grammar, DEFAULT ) {
         var self = this;
-        Parser.call(self, grammar, "", "");
+        Parser.call(self, grammar, "plain", "plain");
         self.DEF = DEFAULT || self.$DEF;
         self.ERR = /*grammar.Style.error ||*/ self.$ERR;
     }
     
     ,tokenize: function( stream, state, row ) {
         var self = this, tokens = [], token, buf = [], id = null,
-            raw_content = function( token ) { return token.value; },
-            maybe_raw = function( token ) { return self.$DEF === token.type ? token.value : token; }
-        ;
+            plain_token = function( t ){ t.type = self.$DEF; return t; };
         //state.line = row || 0;
+        if ( undef === state.pos ) state.pos = 0;
         if ( stream.eol() ) { state.line++; if ( state.$blank$ ) state.bline++; }
         else while ( !stream.eol() )
         {
             token = self.token( stream, state );
+            token.pos = state.pos; state.pos += token.token.length;
             if ( state.$actionerr$ )
             {
-                if ( buf.length ) tokens = tokens.concat( map( buf, raw_content ) );
-                tokens.push( token.value );
+                if ( buf.length ) tokens = tokens.concat( map( buf, plain_token ) );
+                token.type = self.$DEF; tokens.push( token );
                 buf.length = 0; id = null;
             }
             else
             {
                 if ( id !== token.name )
                 {
-                    if ( buf.length ) tokens = tokens.concat( map( buf, maybe_raw ) );
+                    if ( buf.length ) tokens = tokens.concat( buf );
                     buf.length = 0; id = token.name;
                 }
                 buf.push( token );
             }
         }
-        if ( buf.length ) tokens = tokens.concat( map( buf, maybe_raw ) );
+        if ( buf.length ) tokens = tokens.concat( buf );
         buf.length = 0; id = null;
         return tokens;
     }
 });
 
 
-function esc_token( i, tokens )
-{
-    var t = tokens[i];
-    if ( t.value ) t.value = esc_html( t.value, 1 );
-    else t = esc_html( t, 1 );
-    tokens[i] = t;
-}
-
 function get_mode( grammar, SyntaxHighlighter ) 
 {
-    var Token = SyntaxHighlighter.Match,
-        Highlighter = SyntaxHighlighter.Highlighter,
-        SyntaxHighlighterBrush = Class(Highlighter, {
+    var shToken = function( t ) { return new SyntaxHighlighter.Match(t.token, t.pos, t.type); }
+        ,HighlighterBrush = SyntaxHighlighter.Highlighter
+        ,SyntaxHighlighterBrush = Class(HighlighterBrush, {
             constructor: function SyntaxHighlighterBrush( ) {
                 var self = this;
-                Highlighter.call( self );
+                HighlighterBrush.call( self );
+            }
+            ,findMatches: function( regexList, code ) {
+                var tokens = SyntaxHighlighterBrush.$parser.parse(code, TOKENS|ERRORS|FLAT).tokens;
+                return map( tokens, shToken );
             }
         })
     ;
     SyntaxHighlighterBrush.$id = uuid("syntaxhighlighter_grammar_brush");
-    SyntaxHighlighterBrush.escapeHtml = false;
     SyntaxHighlighterBrush.$parser = new SyntaxHighlighterGrammar.Parser( parse_grammar( grammar ) );
     SyntaxHighlighterBrush.dispose = function( ) {
         if ( SyntaxHighlighterBrush.$parser ) SyntaxHighlighterBrush.$parser.dispose( );
