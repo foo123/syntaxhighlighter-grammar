@@ -1,7 +1,6 @@
 syntaxhighlighter-grammar
 =============
 
-**IN PROGRESS**
 
 __Transform a JSON grammar into a syntax-highlight brush for SyntaxHighlighter__
 
