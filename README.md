@@ -8,7 +8,7 @@ A simple and light-weight (~ 31kB minified, ~ 11kB zipped) [SyntaxHighlighter](h
 
 to generate syntaxhighlighter-compatible brushes from a grammar specification in JSON format.
 
-See also:  [codemirror-grammar](https://github.com/foo123/codemirror-grammar), [ace-grammar](https://github.com/foo123/ace-grammar), [prism-grammar](https://github.com/foo123/prism-grammar)
+See also:  [codemirror-grammar](https://github.com/foo123/codemirror-grammar), [ace-grammar](https://github.com/foo123/ace-grammar), [prism-grammar](https://github.com/foo123/prism-grammar), [highlightjs-grammar](https://github.com/foo123/highlightjs-grammar)
 
 **Note:** The invariant codebase for all the `*-grammar` add-ons resides at [editor-grammar](https://github.com/foo123/editor-grammar) repository (used as a `git submodule`)
 
