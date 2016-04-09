@@ -20,17 +20,49 @@ var SyntaxHighlighterParser = Class(Parser, {
         self.ERR = /*grammar.Style.error ||*/ self.$ERR;
     }
     
-    ,tokenize: function( stream, state, row ) {
+    // get token via multiplexing inner grammars if needed
+    ,get: function( stream, mode ) {
+        var ret = mode.parser.token( stream, mode.state, mode.inner );
+        while ( ret && ret.parser )
+        {
+            // multiplex inner grammar/parser/state if given
+            // save inner parser current state
+            if ( ret.fromInner && (mode.parser !== ret.parser) )
+            {
+                mode.state.err = ret.fromInner.err;
+                mode.state.pos = ret.fromInner.pos;
+                if ( mode.name ) mode.inner[mode.name] = ret.fromInner;
+            }
+            // share some state
+            ret.state.err = mode.state.err;
+            ret.state.line = mode.state.line;
+            ret.state.bline = mode.state.bline;
+            ret.state.$blank$ = mode.state.$blank$;
+            ret.state.$eol$ = mode.state.$eol$;
+            ret.state.pos = mode.state.pos;
+            ret.state.$full_parse$ = mode.state.$full_parse$;
+            // update parser to current parser and associated state
+            mode.state = ret.state;
+            mode.parser = ret.parser;
+            mode.name = ret.toInner;
+            // get new token
+            ret = mode.parser.get( stream, mode );
+        }
+        // return token
+        return ret;
+    }
+    
+    ,tokenize: function( stream, mode, row ) {
         var self = this, tokens = [], token, buf = [], id = null,
             plain_token = function( t ){ t.type = self.$DEF; return t; };
-        //state.line = row || 0;
-        if ( undef === state.pos ) state.pos = 0;
-        if ( stream.eol() ) { state.line++; if ( state.$blank$ ) state.bline++; }
+        //mode.state.line = row || 0;
+        if ( undef === mode.state.pos ) mode.state.pos = 0;
+        if ( stream.eol() ) { mode.state.line++; if ( mode.state.$blank$ ) mode.state.bline++; }
         else while ( !stream.eol() )
         {
-            token = self.token( stream, state );
-            token.pos = state.pos; state.pos += token.token.length;
-            if ( state.$actionerr$ )
+            token = mode.parser.get( stream, mode );
+            token.pos = mode.state.pos; mode.state.pos += token.token.length;
+            if ( mode.state.$actionerr$ )
             {
                 if ( buf.length ) tokens = tokens.concat( map( buf, plain_token ) );
                 token.type = self.$DEF; tokens.push( token );
@@ -63,13 +95,37 @@ function get_mode( grammar, SyntaxHighlighter )
                 HighlighterBrush.call( self );
             }
             ,findMatches: function( regexList, code ) {
+                var escaped = SyntaxHighlighterBrush.escapeHtml;
+                if ( escaped )
+                {
+                    // de-escape any html entities
+                    code = de_esc_html( code );
+                }
+                
                 var tokens = SyntaxHighlighterBrush.$parser.parse(code, TOKENS|ERRORS|FLAT).tokens;
+                
+                if ( escaped )
+                {
+                    // re-escape any html entities
+                    var pos = 0;
+                    iterate( function( i, tokens ){
+                        var t = tokens[i];
+                        t.pos = pos;
+                        t.token = esc_html( t.token, 1 );
+                        pos += t.token.length;
+                    }, 0, tokens.length-1, tokens );
+                }
+                
                 return map( tokens, shToken );
             }
         })
     ;
     SyntaxHighlighterBrush.$id = uuid("syntaxhighlighter_grammar_brush");
     SyntaxHighlighterBrush.$parser = new SyntaxHighlighterGrammar.Parser( parse_grammar( grammar ) );
+    SyntaxHighlighterBrush.escapeHtml = true;
+    SyntaxHighlighterBrush.submode = function( lang, mode ) {
+        SyntaxHighlighterBrush.$parser.subparser( lang, mode.$parser );
+    };
     SyntaxHighlighterBrush.dispose = function( ) {
         if ( SyntaxHighlighterBrush.$parser ) SyntaxHighlighterBrush.$parser.dispose( );
         SyntaxHighlighterBrush.$parser = null;
