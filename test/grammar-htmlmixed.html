@@ -2,32 +2,23 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <style type="text/css">
-            body {
-                position: relative;
-            }
-            pre {
-                max-height: 30em;
-                overflow: auto;
-            }
-            pre > code.highlight {
-                outline: .4em solid red;
-                outline-offset: .4em;
-            }
-            code[class*="language"] {
-                overflow: visible;
-            }
-            pre[class*="language"] {
-                overflow: scroll;
-                max-height: 50em;
-            }
-        </style>
         <link type="text/css" rel="stylesheet" href="syntaxhighlighter/shCore.css"/>
         <link type="text/css" rel="Stylesheet" href="syntaxhighlighter/shThemeDefault.css" />
         <script src="syntaxhighlighter/shCore.js"></script>
         <script src="../build/syntaxhighlighter_grammar.js"></script>
+        <script src="grammars/javascript.js"></script>
+        <script src="grammars/css.js"></script>
         <script src="grammars/htmlmixed.js"></script>
         <script src="./demo.js"></script>
+        <style type="text/css">
+            body {
+                position: relative;
+                overflow: scroll;
+            }
+            .syntaxhighlighter {
+                overflow: visible !important;
+            }
+        </style>
         
         <title>SyntaxHighlighter: Dynamic Mixed HTML + JavaScript + CSS Grammar Demo</title>
     </head>
@@ -83,7 +74,11 @@ var bar = { foo: [1, 2, 3, {"foo3":"foo4"}],
 
         <script>
         // <![CDATA[
-        syntaxhighlighter_grammar_demo(document.getElementById('code'), "htmlmixed", htmlmixed_grammar);
+        syntaxhighlighter_grammar_demo(document.getElementById('code'), [
+             {language: "htmlmixed", grammar: htmlmixed_grammar}
+            ,{language: "javascript", grammar: js_grammar}
+            ,{language: "css", grammar: css_grammar}
+        ]);
         // ]]>
         </script>
     </body>

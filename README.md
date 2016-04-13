@@ -42,7 +42,8 @@ see [Modularity and Future Directions](https://github.com/foo123/editor-grammar/
 * [`Grammar.Syntax Model`](https://github.com/foo123/editor-grammar/blob/master/grammar-reference.md#syntax-model) can enable highlight in a more *context-specific* way, plus detect possible *syntax errors*
 * [`Grammar.Syntax Model`](https://github.com/foo123/editor-grammar/blob/master/grammar-reference.md#syntax-model) can contain **recursive references**
 * [`Grammar.Syntax Model`](https://github.com/foo123/editor-grammar/blob/master/grammar-reference.md#syntax-pegbnf-like-notations) can be (fully) specificed using [`PEG`](https://en.wikipedia.org/wiki/Parsing_expression_grammar)-like notation or [`BNF`](https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_Form)-like notation  (**NEW feature**)
-* [`Grammar.Syntax Model`](https://github.com/foo123/editor-grammar/blob/master/grammar-reference.md#syntax-pegbnf-like-notations) implements **positive / negative lookahead tokens** (analogous to `PEG` `and-`/`not-` entities)  (**NEW feature**)
+* [`Grammar.Syntax Model`](https://github.com/foo123/editor-grammar/blob/master/grammar-reference.md#syntax-pegbnf-like-notations) implements **positive / negative lookahead tokens** (analogous to `PEG` `and-`/`not-` predicates)  (**NEW feature**)
+* [`Grammar.Syntax Model`](https://github.com/foo123/editor-grammar/blob/master/grammar-reference.md#syntax-model) can include **external (sub-)grammars so that new multiplexed / mixed grammars** are created easily and intuitively (see test examples) (**NEW feature**)
 * `Grammar` can define [*action* tokens](https://github.com/foo123/editor-grammar/blob/master/grammar-reference.md#action-tokens) to perform *complex context-specific* parsing functionality, including **associated tag matching** and **duplicate identifiers** (see for example `xml.grammar` example) (**NEW feature**)
 * Generated highlighters are **optimized for speed and size**
 * Can generate a syntax-highlighter from a grammar **interactively and on-the-fly** ( see example, http://foo123.github.io/examples/syntaxhighlighter-grammar )
@@ -79,18 +80,18 @@ var xml_grammar = {
 // Lexical model
 "Lex"                               : {
      
-     "comment:comment"              : ["&lt;!--", "--&gt;"]
-    ,"declaration:block"            : ["&lt;?xml", "?&gt;"]
-    ,"doctype:block"                : ["RE::/&lt;!doctype\\b/i", "&gt;"]
-    ,"meta:block"                   : ["RE::/&lt;\\?[_a-zA-Z][\\w\\._\\-]*/", "?&gt;"]
-    ,"cdata:block"                  : ["&lt;![CDATA[", "]]&gt;"]
-    ,"open_tag"                     : "RE::/&lt;([_a-zA-Z][_a-zA-Z0-9\\-]*)/"
-    ,"close_tag"                    : "RE::/&lt;\\/([_a-zA-Z][_a-zA-Z0-9\\-]*)&gt;/"
+     "comment:comment"              : ["<!--", "-->"]
+    ,"declaration:block"            : ["<?xml", "?>"]
+    ,"doctype:block"                : ["RE::/<!doctype\\b/i", ">"]
+    ,"meta:block"                   : ["RE::/<\\?[_a-zA-Z][\\w\\._\\-]*/", "?>"]
+    ,"cdata:block"                  : ["<![CDATA[", "]]>"]
+    ,"open_tag"                     : "RE::/<([_a-zA-Z][_a-zA-Z0-9\\-]*)/"
+    ,"close_tag"                    : "RE::/<\\/([_a-zA-Z][_a-zA-Z0-9\\-]*)>/"
     ,"attribute"                    : "RE::/[_a-zA-Z][_a-zA-Z0-9\\-]*/"
     ,"string:line-block"            : [["\""], ["'"]]
     ,"number"                       : ["RE::/[0-9]\\d*/", "RE::/#[0-9a-fA-F]+/"]
-    ,"atom"                         : ["RE::/&amp;#x[a-fA-F\\d]+;/", "RE::/&amp;#[\\d]+;/", "RE::/&amp;[a-zA-Z][a-zA-Z0-9]*;/"]
-    ,"text"                         : "RE::/[^&]+/"
+    ,"atom"                         : ["RE::/&#x[a-fA-F\\d]+;/", "RE::/&#[\\d]+;/", "RE::/&[a-zA-Z][a-zA-Z0-9]*;/"]
+    ,"text"                         : "RE::/[^<&]+/"
     
     // actions
     ,"tag_ctx:action"               : {"context":true}
@@ -108,7 +109,7 @@ var xml_grammar = {
 "Syntax"                            : {
      
      "tag_att"                      : "'id'.attribute unique_att '=' string unique_id | attribute unique_att '=' (string | number)"
-    ,"start_tag"                    : "open_tag.tag tag_ctx tag_opened tag_att* ('&gt;'.tag | '/&gt;'.tag tag_autoclosed) \\tag_ctx"
+    ,"start_tag"                    : "open_tag.tag tag_ctx tag_opened tag_att* ('>'.tag | '/>'.tag tag_autoclosed) \\tag_ctx"
     ,"end_tag"                      : "close_tag.tag tag_closed"
     ,"xml"                          : "(^^1 declaration? doctype?) (declaration.error out_of_place | doctype.error out_of_place | comment | meta | cdata | start_tag | end_tag | atom | text)*"
     
@@ -134,3 +135,9 @@ SyntaxHighlighter.highlight( {brush: "xml"}, document.getElementById("code") );
 Result:
 
 ![xml-grammar](/test/grammar-xml.png)
+
+
+###Other Examples:
+
+![htmlmixed-grammar](/test/grammar-htmlmixed.png)
+

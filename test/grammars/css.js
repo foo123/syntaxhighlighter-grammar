@@ -7,19 +7,19 @@ var css_grammar = {
 // Style model
 "Style"                     : {
 
-     "comment"              : "comment"
-    ,"identifier"           : "symbol"
-    ,"css_id"               : "atrule"
-    ,"css_class"            : "atrule"
-    ,"css_atom"             : "entity"
-    ,"css_property"         : "property"
-    ,"html_element"         : "atrule"
-    ,"pseudo_element"       : "selector"
-    ,"number"               : "number"
+     "comment"              : "comments"
+    ,"identifier"           : "variable"
+    ,"css_id"               : "color1"
+    ,"css_class"            : "color2"
+    ,"css_atom"             : "constants"
+    ,"css_property"         : "variable"
+    ,"html_element"         : "keyword"
+    ,"pseudo_element"       : "string"
+    ,"number"               : "constants"
     ,"string"               : "string"
     ,"unquoted_string"      : "string"
-    ,"atrule"               : "constant"
-    ,"important"            : "important"
+    ,"atrule"               : "constants"
+    ,"important"            : "constants"
 
 },
 
