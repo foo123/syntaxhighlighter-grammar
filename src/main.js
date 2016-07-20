@@ -155,7 +155,7 @@ function get_mode( grammar, SyntaxHighlighter )
 * ```
 *
 [/DOC_MARKDOWN]**/
-var SyntaxHighlighterGrammar = exports['@@MODULE_NAME@@'] = {
+var SyntaxHighlighterGrammar = {
     
     VERSION: "@@VERSION@@",
     
