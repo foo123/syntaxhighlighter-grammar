@@ -4,7 +4,7 @@ syntaxhighlighter-grammar
 
 __Transform a JSON grammar into a syntax-highlight brush for SyntaxHighlighter__
 
-A simple and light-weight (~ 31kB minified, ~ 11kB zipped) [SyntaxHighlighter](https://github.com/syntaxhighlighter/syntaxhighlighter) add-on
+A simple and light-weight (~ 44kB minified, ~ 15kB zipped) [SyntaxHighlighter](https://github.com/syntaxhighlighter/syntaxhighlighter) add-on
 
 to generate syntaxhighlighter-compatible brushes from a grammar specification in JSON format.
 
