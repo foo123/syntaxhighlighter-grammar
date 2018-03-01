@@ -1,6 +1,6 @@
 
 
-###SyntaxHighlighterGrammar Methods
+### SyntaxHighlighterGrammar Methods
 
 __For node:__
 
