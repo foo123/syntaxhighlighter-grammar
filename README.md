@@ -1,4 +1,4 @@
-syntaxhighlighter-grammar
+syntax highlighter-grammar
 =============
 
 
@@ -109,7 +109,7 @@ var xml_grammar = {
 },
     
 // Syntax model (optional)
-"Syntax"                            : {
+      "Syntax"                            : {
      
      "tag_att"                      : "'id'.attribute unique_att '=' string unique_id | attribute unique_att '=' (string | number)"
     ,"start_tag"                    : "open_tag.tag tag_ctx tag_opened tag_att* ('>'.tag | '/>'.tag tag_autoclosed) \\tag_ctx"
